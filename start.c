@@ -1,9 +1,9 @@
-#include "led.h"
+#include "io_task.h"
 
 __attribute__((naked, section(".init")))
 void _start(void)
 {
-  yellow_on();
+  input_output();
   for(;;);
 }
 
