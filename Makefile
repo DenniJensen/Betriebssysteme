@@ -16,7 +16,7 @@
 # Quellen
 #
 LSCRIPT = kernel.lds
-OBJ = start1.o led1.o
+OBJ = start.o io_task.o
 
 #
 # Konfiguration
@@ -24,16 +24,17 @@ OBJ = start1.o led1.o
 CC = arm-none-eabi-gcc
 LD = arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
+OBJDUMP = arm-none-eabi-objdump
 
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2
-#LIBGCC := $(shell $(CC) -print-libgcc-file-name)
+# LIBGCC := $(shell $(CC) -print-libgcc-file-name)
 
 DEP = $(OBJ:.o=.d)
 
 #
 # Regeln
 #
-.PHONY: all 
+.PHONY: all
 all: kernel
 
 -include $(DEP)
@@ -56,6 +57,21 @@ kernel.img: kernel.bin
 .PHONY: install
 install: kernel.img
 	arm-install-image $<
+
+check.kernel:
+	$(OBJDUMP) -fhd kernel
+
+check.o:
+	$(OBJDUMP) -d $(OBJ)
+
+run:
+	qemu-bsprak -kernel kernel
+
+run.telnet:
+	qemu-bsprak -kernel kernel -piotelnet
+
+telnet:
+	telnet localhost 44444
 
 .PHONY: clean
 clean:
