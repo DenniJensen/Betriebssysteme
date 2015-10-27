@@ -4,6 +4,9 @@ __attribute__((naked, section(".init")))
 void _start(void)
 {
   input_output();
-  for(;;);
+  for(;;)
+  {
+    
+  }
 }
 
