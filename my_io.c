@@ -11,7 +11,7 @@
 #define RSTTX (1 << 3) // reset transmitter
 #define RXRDY (1 << 0) // receiver ready
 
-#define MAX_CHAR_COUNT 11
+#define MAX_CHAR_COUNT 50
 
 static inline void write_u32(unsigned int addr, unsigned int val)
 {
