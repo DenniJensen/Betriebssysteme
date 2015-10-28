@@ -1,15 +1,15 @@
-#define DBGU 0xFFFFF200 // 512 Bytes
+#define DBGU 0xFFFFF200 // debug unit, 512 Bytes
 
-#define DBGU_CR 0x00
-#define DBGU_SR 0x14
+#define DBGU_CR 0x00 // control register
+#define DBGU_SR 0x14 // status register
 #define DBGU_RHR 0x18 // receiver
 #define DBGU_THR 0x1C // transmitter
 
 #define RXEN (1 << 4) // Turn receiver on
-#define RXENX (1 << 2) // Turn receiver off
+#define RXDIS (1 << 2) // Turn receiver off
 #define TXEN (1 << 6) // Turn transmitter on
 #define RSTTX (1 << 3) // reset transmitter
-#define RXRDY (1 << 0)
+#define RXRDY (1 << 0) // receiver ready
 
 #define MAX_CHAR_COUNT 11
 
