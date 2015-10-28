@@ -4,6 +4,7 @@
 #
 # make		-- Baut den Kernel.
 # make all
+# make run -- Fuehrt qemu aus
 #
 # make install	-- Baut den Kernel und transferiert ihn auf den Server.
 # 		   Das Board holt sich diesen Kernel beim nächsten Reset.
@@ -16,7 +17,7 @@
 # Quellen
 #
 LSCRIPT = kernel.lds
-OBJ = start.o io_task.o
+OBJ = start.o io_task.o my_io.o
 
 #
 # Konfiguration
@@ -31,9 +32,6 @@ LIBGCC := $(shell $(CC) -print-libgcc-file-name)
 
 DEP = $(OBJ:.o=.d)
 
-#
-# Regeln
-#
 .PHONY: all
 all: kernel
 
