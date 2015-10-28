@@ -4,13 +4,16 @@
 
 #define DBGU_CR 0x00
 #define DBGU_SR 0x14
-#define DBGU_RHR 0x18
-#define DBGU_THR 0x1C
+#define DBGU_RHR 0x18 // receiver
+#define DBGU_THR 0x1C // transmitter
 
-#define TURN_ON 0x01
+#define RXEN (1 << 4) // Turn receiver on
+#define RXENX (1 << 2) // Turn receiver off
+#define TXEN (1 << 6) // Turn transmitter on
+#define RSTTX (1 << 3) // reset transmitter
+#define RXRDY (1 << 0)
 
-#define RXEN 0x04
-#define TXEN 0x06
+#define MAX_CHAR_COUNT 11
 
 static inline unsigned int get_data(unsigned int addr)
 {
@@ -29,13 +32,11 @@ void input_output(void)
   write_u32(DBGU + DBGU_CR, RXEN);
 
   // Transmitter aktivieren
-  // Bad offset
   write_u32(DBGU + DBGU_CR, TXEN);
 
   // in THR schreiben
-  write_u32(DBGU + DBGU_THR, 'h');
-  write_u32(DBGU + DBGU_THR, 'a');
-
-  write_u32(DBGU + DBGU_THR, (DBGU + DBGU_RHR));
+  if(get_data(DBGU + DBGU_SR) & RXRDY) {
+    write_u32(DBGU + DBGU_THR, get_data(DBGU + DBGU_RHR));
+  }
 }
 

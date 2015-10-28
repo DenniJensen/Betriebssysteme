@@ -27,7 +27,7 @@ OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2
-# LIBGCC := $(shell $(CC) -print-libgcc-file-name)
+LIBGCC := $(shell $(CC) -print-libgcc-file-name)
 
 DEP = $(OBJ:.o=.d)
 
