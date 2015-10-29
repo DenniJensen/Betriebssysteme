@@ -7,8 +7,10 @@ void _start(void)
 {
   my_printf("Programm by Dennis Haegler and Paul Kunze.\n");
   my_printf("Starting simple io programm\n");
-  for(;;)
-  {
+
+  my_printf("This is a  %c\n");
+
+  for(;;) {
     input_output();
   }
 }

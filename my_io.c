@@ -36,19 +36,25 @@ void enable_transmitter()
 void my_printf(char* string, ...)
 {
   int i = 0;
-  for (i = 0; i < MAX_CHAR_COUNT; ++i)
-  {
-    if (*string != '\0')
-    {
-      write_u32(DBGU + DBGU_THR, string[i]);
+  for (i = 0; i < MAX_CHAR_COUNT; ++i) {
+    if (string[i] != '\0') {
+      if (string[i] == '\r') {
+        write_u32(DBGU + DBGU_THR, '\n');
+      } else {
+        write_u32(DBGU + DBGU_THR, string[i]);
+      }
     }
   }
 }
 
 void print_last_keystroke()
 {
-  if(get_data(DBGU + DBGU_SR) & RXRDY)
-  {
-    write_u32(DBGU + DBGU_THR, get_data(DBGU + DBGU_RHR));
+  if(get_data(DBGU + DBGU_SR) & RXRDY) {
+    char data = get_data(DBGU + DBGU_RHR);
+    if (data == '\r') {
+      write_u32(DBGU + DBGU_THR, '\n');
+    } else {
+      write_u32(DBGU + DBGU_THR, data);
+    }
   }
 }
