@@ -5,10 +5,11 @@
 __attribute__((naked, section(".init")))
 void _start(void)
 {
-  my_printf("Programm by Dennis Haegler and Paul Kunze.\n");
-  my_printf("Starting simple io programm\n");
+  print_string("Programm by Dennis Haegler and Paul Kunze.\n");
+  print_string("Starting simple io programm\n");
 
-  my_printf("This is a  %c\n");
+  my_printf("This is a  %c\n", 'H');
+  my_printf("Iam printing a %s", "STRING");
 
   for(;;) {
     input_output();

@@ -1,3 +1,5 @@
+#include <stdarg.h>
+
 #define DBGU 0xFFFFF200 // debug unit, 512 Bytes
 
 #define DBGU_CR 0x00 // control register
@@ -11,7 +13,7 @@
 #define RSTTX (1 << 3) // reset transmitter
 #define RXRDY (1 << 0) // receiver ready
 
-#define MAX_CHAR_COUNT 50
+#define MAX_CHAR_COUNT 100
 
 static inline void write_u32(unsigned int addr, unsigned int val)
 {
@@ -33,7 +35,18 @@ void enable_transmitter()
   write_u32(DBGU + DBGU_CR, TXEN);
 }
 
-void my_printf(char* string, ...)
+/**
+ * Prints a single char into the Debug Unit console.
+ */
+void print(char c)
+{
+  write_u32(DBGU + DBGU_THR, c);
+}
+
+/**
+ * Prints a complete string into the Debug Unit console.
+ */
+void print_string(char* string)
 {
   int i = 0;
   for (i = 0; i < MAX_CHAR_COUNT; ++i) {
@@ -50,11 +63,40 @@ void my_printf(char* string, ...)
 void print_last_keystroke()
 {
   if(get_data(DBGU + DBGU_SR) & RXRDY) {
-    char data = get_data(DBGU + DBGU_RHR);
-    if (data == '\r') {
-      write_u32(DBGU + DBGU_THR, '\n');
+    char c = get_data(DBGU + DBGU_RHR);
+    if (c == '\r' || c == '\n') {
+      print('\n');
     } else {
-      write_u32(DBGU + DBGU_THR, data);
+      print(c);
     }
   }
+}
+
+/**
+ * This is code is inspired by the man page of <stdarg>
+ */
+void my_printf(char *string, ...)
+{
+  va_list ap, ap2;
+  char c, *s;
+
+  va_start(ap, string);
+  va_copy(ap2, ap);
+  while (*string != '\0')
+    switch(*string++) {
+      case 's':
+        s = va_arg(ap, char *);
+        print_string(s);
+        break;
+      case 'd':
+        c = (char) va_arg(ap, int);
+        print(c);
+        break;
+      case 'c':
+        c = va_arg(ap, int);
+        print(c);
+        break;
+    }
+  va_end(ap);
+  va_end(ap2);
 }
