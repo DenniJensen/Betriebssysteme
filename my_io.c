@@ -79,11 +79,19 @@ void my_printf(char *string, ...)
 {
   va_list ap, ap2;
   char c, *s;
-
   va_start(ap, string);
   va_copy(ap2, ap);
-  while (*string != '\0')
-    switch(*string++) {
+
+  while (*string != '\0') {
+    if(*string != '%') {
+      print(*string++);
+      continue;
+    }
+    switch(*string) {
+      case 'c':
+        c = va_arg(ap, int);
+        print(c);
+        break;
       case 's':
         s = va_arg(ap, char *);
         print_string(s);
@@ -92,11 +100,12 @@ void my_printf(char *string, ...)
         c = (char) va_arg(ap, int);
         print(c);
         break;
-      case 'c':
-        c = va_arg(ap, int);
-        print(c);
-        break;
+      default:
+        print('%');
+        print(*string);
     }
+    string++;
+  }
   va_end(ap);
   va_end(ap2);
 }
