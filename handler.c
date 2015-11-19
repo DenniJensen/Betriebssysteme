@@ -1,15 +1,26 @@
 #include "my_io.h"
 
-__attribute__((naked, section(".memory_error")))
-void handle_abort_error(void) {
-  print_string("O no! A memory error\n");
-  volatile unsigned int *addr;
+__attribute__(())
+  void handle_swi(void) {
+    my_printf("Software Interrupt\n");
+  }
 
-  __asm__ __volatile__ (
-      "sub lr, lr, #8\n"
-      "mov %0, lr" : "=r" (addr)
-      );
+__attribute__(())
+  void handle_prefetch(void) {
+    // TODO 4 steps back
+    my_printf("Prefetch abort\n");
+  }
 
-  my_printf("Data Abort at %p", *(addr));
-  for(;;);
-}
+__attribute__(())
+  void handle_abort(void) {
+    volatile unsigned int *addr;
+
+    __asm__ __volatile__ (
+        "sub lr, lr, #8\n"
+        "mov %0, lr" : "=r" (addr)
+        );
+
+    my_printf("ERROR FOUND\n");
+    my_printf("Data Abort at %p", *(addr));
+    for(;;);
+  }
