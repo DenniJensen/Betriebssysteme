@@ -72,6 +72,31 @@ void print_last_keystroke()
   }
 }
 
+static void print_hex(unsigned int val, int do_prefix, int length)
+{
+  char *hex_mask = "0123456789abcdef";
+  int i;
+
+  if (do_prefix) {
+    print('0');
+    print('x');
+  }
+
+  /* Nibble von links nach rechts durchgehen: 0x76543210 */
+  for (i = 7; i >= 0; i--) {
+    unsigned int nibble = (val >> (4 * i)) & 0xf;
+
+    /* ggf. führende Nullen überspringen */
+    if (!nibble && i >= length)
+      continue;
+
+    print(hex_mask[nibble]);
+
+    /* nach erster Ausgabe keine weiteren Nullen ignorieren */
+    length = 8;
+  }
+}
+
 /**
  * This is code is inspired by the man page of <stdarg>
  */
@@ -100,6 +125,10 @@ void my_printf(char *string, ...)
         c = (char) va_arg(ap, int);
         print(c);
         break;
+      case 'p':
+        print_hex(va_arg(ap, unsigned int), 1, 8);
+      case '%':
+        print('%');
       default:
         print('%');
         print(*string);
