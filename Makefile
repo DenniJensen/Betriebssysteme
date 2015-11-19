@@ -17,7 +17,7 @@
 # Quellen
 #
 LSCRIPT = kernel.lds
-OBJ = start.o io_task.o my_io.o
+OBJ = start.o io_task.o my_io.o handler.o
 
 #
 # Konfiguration
