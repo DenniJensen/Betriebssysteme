@@ -10,6 +10,7 @@
 #
 # make clean	-- Löscht alle erzeugten Dateien.
 #
+# make run    -- Baut den Kernel und startet den Emulator
 
 
 #
@@ -17,40 +18,45 @@
 #
 LSCRIPT = kernel.lds
 
-OBJ =  system/entry.o system/start.o
-OBJ += system/exceptions.o system/exceptions_asm.o
-OBJ += system/cpu.o system/cpu_asm.o
-OBJ += system/info.o
+OBJ = system/start.o system/main.o
+OBJ += system/exception_asm.o system/exception.o
 
-OBJ += driver/dbgu.o driver/mc.o
-OBJ += lib/print.o lib/mem.o
+OBJ += lib/helpers.o
+OBJ += driver/dbgu.o driver/aic.o driver/timer.o
+
 
 #
 # Konfiguration
 #
-CC = arm-none-eabi-gcc
-LD = arm-none-eabi-ld
-OBJCOPY = arm-none-eabi-objcopy
+CC = $(shell ./path_resolve arm-none-eabi-gcc)
+LD = $(shell ./path_resolve arm-none-eabi-ld)
+OBJCOPY = $(shell ./path_resolve arm-none-eabi-objcopy)
 
-CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2
-CPPFLAGS = -Iinclude
-#LIBGCC := $(shell $(CC) -print-libgcc-file-name)
+QEMU_BSPRAK = $(shell ./path_resolve qemu-bsprak)
+
+
+CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -Iinclude -I. -Ilib -O2
+LIBGCC := $(shell $(CC) -print-libgcc-file-name)
 
 DEP = $(OBJ:.o=.d)
+
+debug: CFLAGS += -g
+
+export CC
+export LD
+export OBJCOPY
+export CFLAGS
 
 #
 # Regeln
 #
-.PHONY: all 
+.PHONY: all
 all: kernel
 
 -include $(DEP)
 
-%.o: %.S
-	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -o $@ -c $<
-
-%.o: %.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -o $@ -c $<
+%.o: %.c %.S
+	$(CC) $(CFLAGS) $(IFLAG) -MMD -MP -o $@ -c $<
 
 kernel: $(LSCRIPT) $(OBJ)
 	$(LD) -T$(LSCRIPT) -o $@ $(OBJ) $(LIBGCC)
@@ -70,3 +76,11 @@ clean:
 	rm -f kernel kernel.bin kernel.img
 	rm -f $(OBJ)
 	rm -f $(DEP)
+	rm -f $(shell find -name '*.gch')
+
+.PHONY: run
+run: clean kernel
+	$(QEMU_BSPRAK) -kernel kernel
+
+.PHONY: debug
+debug: clean kernel
