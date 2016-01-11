@@ -10,108 +10,103 @@
  * wird.
  *
  * Es wird nicht sofort der Handler im C-Code angesprungen, sondern zunächst
- * ein Trampolin, was es uns ermöglicht einige Register für Debug-Ausgaben zu
- * sichern.
- *
- * (Als Alternative lassen sich die Trampoline mit in den internen RAM
- * kopieren. Dann könnte man die acht Sprungbefehle mit B realisieren, und in
- * den Trampolinen müsste man LDR (auch mit Sprungtabelle) statt B verwenden.)
+ * ein Trampolin, was uns die notwendige vollständige Kontrolle über die
+ * Inhalte der Register gibt.
  */
- 
+
 .global _exception_vectors_begin
 _exception_vectors_begin:
- 	ldr	pc, jt_unhandled	/* Reset */ 
- 	ldr	pc, jt_undef		/* Undefined Instruction */ 
- 	ldr	pc, jt_swi		/* Software Interrupt */ 
- 	ldr	pc, jt_prefabort	/* Prefetch Abort */ 
- 	ldr	pc, jt_dataabort	/* Data Abort */ 
- 	ldr	pc, jt_unhandled	/* Reserved */ 
- 	ldr	pc, jt_interrupt	/* Interrupt */ 
- 	ldr	pc, jt_unhandled	/* Fast Interrupt */ 
- 
+.word	0xE7F000F0		/* Reset --> löst Undef aus */
+ldr	pc, jt_undef		/* Undefined Instruction */
+ldr	pc, jt_swi		/* Software Interrupt */
+ldr	pc, jt_prefabort	/* Prefetch Abort */
+ldr	pc, jt_dataabort	/* Data Abort */
+.word	0xE7F000F0		/* Reserved --> löst Undef aus*/
+ldr	pc, jt_interrupt	/* Interrupt */
+.word	0xE7F000F0		/* Fast Interrupt --> löst Undef aus */
+
 jt_undef:	.word undef_trampoline
 jt_swi:		.word swi_trampoline
 jt_prefabort:	.word prefabort_trampoline
 jt_dataabort:	.word dataabort_trampoline
 jt_interrupt:	.word interrupt_trampoline
-jt_unhandled:	.word unhandled_trampoline
- 
+
 .global _exception_vectors_end
 _exception_vectors_end:
- 
- 
+
 /*
- * interrupt_trampoline() - Trampolin für Interrupts
+ * *_trampoline() - Trampoline für Ausnahmen
  *
- * Derzeit das einzige Trampolin mit Rücksprung.
+ * Da die Trampoline alle recht ähnlich sind, erzeugen wir sie mit einem
+ * parametrisierten Makro. Es besteht aus drei Schritten: Sichern,
+ * Bearbeiten, Wiederherstellen.
+ *
+ * Das Trampoline sichert sämtliche User-Register schön sortiert auf dem
+ * Stack. Der User-PC (jetzt LR) wird entsprechend der Ausnahme korrigiert
+ * gespeichert; das User-CPSR (jetzt SPSR) wird später im C-Code gesichert.
+ *
+ * Dann erfolgt die eigentliche Prüfung und Behandlung der Ausnahme.
+ * Außerdem bekommt der Scheduler die Chance, einen Kontextwechsel
+ * durch Tauschen der Register auf dem Stack (und des SPSRs) durchzuführen.
+ *
+ * Zum Schluss wird der gesicherte Kontext wieder hergestellt.
  */
-interrupt_trampoline:
- 	/* nur notwendige Register sichern */ 
- 	stmfd	sp!, {r0-r3, r12, lr}
- 
- 	/* C-Handler aufrufen */ 
- 	bl	_exception_interrupt
- 	
- 	/* Register wiederherstellen */
- 	ldmfd	sp!, {r0-r3, r12, lr}
- 	
- 	/* Zurückspringen CPSR = SPSR, PC = LR - 4 */
- 	subs pc, lr, #4
- 
- 
-/*
- * *_trampoline() - Restliche Trampoline für Ausnahmeweiterleitung nach C
- *
- * Die nachfolgenden Trampoline sind im Prinzip identisch: Nach dem Sichern
- * einer Momentaufnahme aller Register auf dem Stack wird der C-Handler
- * angesprungen, der alles weitere übernimmt.
- *
- * (Da wir SP mitsichern, können wir kein Writeback verwenden, sondern müssen
- * den Stack-Pointer manuell versetzen.)
- */
- 
-undef_trampoline:
- 	/* Debug-Registersatz sichern */ 
- 	stmdb	sp, {r0-r15}
- 	sub	sp, sp, #(16*4)
- 
- 	/* C-Handler (ohne Wiederkehr) aufrufen mit Zeiger auf Registersatz */ 
-  	mov	r0, sp
- 	b	_exception_undef
- 
-swi_trampoline:
- 	/* Debug-Registersatz sichern */ 
- 	stmdb	sp, {r0-r15}
- 	sub	sp, sp, #(16*4)
- 
- 	/* C-Handler (ohne Wiederkehr) aufrufen mit Zeiger auf Registersatz */ 
-  	mov	r0, sp
- 	b	_exception_swi
- 
-prefabort_trampoline:
- 	/* Debug-Registersatz sichern */ 
- 	stmdb	sp, {r0-r15}
- 	sub	sp, sp, #(16*4)
- 
- 	/* C-Handler (ohne Wiederkehr) aufrufen mit Zeiger auf Registersatz */ 
-  	mov	r0, sp
- 	b	_exception_prefabort
- 
-dataabort_trampoline:
- 	/* Debug-Registersatz sichern */ 
- 	stmdb	sp, {r0-r15}
- 	sub	sp, sp, #(16*4)
- 
- 	/* C-Handler (ohne Wiederkehr) aufrufen mit Zeiger auf Registersatz */ 
-  	mov	r0, sp
- 	b	_exception_dataabort
- 
-unhandled_trampoline:
- 	/* Debug-Registersatz sichern */ 
- 	stmdb	sp, {r0-r15}
- 	sub	sp, sp, #(16*4)
- 
- 	/* C-Handler (ohne Wiederkehr) aufrufen mit Zeiger auf Registersatz */ 
-  	mov	r0, sp
- 	b	_exception_unhandled
- 
+
+.macro	TRAMPOLINE name lr_offset id handler needs_regs needs_id
+\name:
+/* Rücksprungadresse ggf. korrigieren und sichern */
+  .if \lr_offset
+sub	lr, lr, #(\lr_offset)
+  .endif
+  stmfd	sp!, {lr}
+
+  /*
+   * Unveränderte Register R0-R12 sichern, sowie R13-R14 des User-Modus.
+   * Aufgrund des S-Bits ist kein Writeback möglich, also Platz auf Stack
+   * manuell reservieren.
+   */
+sub	sp, #(15*4)
+  stmia	sp, {r0-r14}^
+
+  /*
+   * In unseren C-Code verzweigen:
+   *   1. Gültigkeit der Exception prüfen
+   *   2. Exception behandeln
+   *   3. ggf. Kontextwechsel
+   */
+mov	r0, #(\id)
+  bl	_validate_exception
+
+  .if \needs_regs
+  mov	r0, sp
+  .endif
+  .if \needs_id
+mov	r1, #(\id)
+  .endif
+  bl	\handler
+
+  mov	r0, sp
+  bl	schedule
+
+  /*
+   * Zuvor gesicherte Register wieder herstellen (R0-R12, R13-R14
+   * User-Modus). Laut Doku sollte in der Instruktion nach LDM^ auf
+   * keines der umgeschalteten Register zugegriffen werden.
+   */
+  ldmia	sp, {r0-r14}^
+  nop
+add	sp, sp, #(15*4)
+
+  /* Rücksprung durch Laden des PC mit S-Bit */
+  ldmfd	sp!, {pc}^
+  .endm
+
+  /* kein Reset */
+  TRAMPOLINE undef_trampoline	4 1 _exception_fault	 1 1
+  TRAMPOLINE swi_trampoline	0 2 _exception_swi	 1 0
+  TRAMPOLINE prefabort_trampoline	4 3 _exception_fault	 1 1
+  TRAMPOLINE dataabort_trampoline	8 4 _exception_fault	 1 1
+  /* kein Reserved */
+  TRAMPOLINE interrupt_trampoline	4 6 _exception_interrupt 0 0
+  /* kein Fast Interrupt */
+

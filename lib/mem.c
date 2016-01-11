@@ -1,5 +1,5 @@
 #include <stddef.h>
- 
+
 /*
  * memcpy() - primitives, nicht optimiertes memcpy()
  *
@@ -11,12 +11,12 @@
  */
 void *memcpy(void *dest, const void *src, size_t n)
 {
-  	const char *s = src; 
- 	char *d = dest; 
- 
- 	while (n--)
- 		*d++ = *s++;
- 
- 	return dest;
+  const char *s = src;
+  char *d = dest;
+
+  while (n--)
+    *d++ = *s++;
+
+  return dest;
 }
- 
+

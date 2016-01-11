@@ -21,9 +21,11 @@ OBJ =  system/entry.o system/start.o
 OBJ += system/exceptions.o system/exceptions_asm.o
 OBJ += system/cpu.o system/cpu_asm.o
 OBJ += system/info.o
+OBJ += system/scheduler.o
 
 OBJ += driver/dbgu.o driver/mc.o driver/st.o driver/aic.o
-OBJ += lib/print.o lib/mem.o
+OBJ += lib/print.o lib/mem.o lib/list.o
+OBJ += user/userthread.o
 
 #
 # Konfiguration

@@ -1,21 +1,21 @@
-/* Basisadresse des Memory-Controllers (siehe Datenblatt AT91RM9200 Kap. 8) */ 
+/* Basisadresse des Memory-Controllers (siehe Datenblatt AT91RM9200 Kap. 8) */
 #define MC_BASE 0xFFFFFF00
- 
+
 /*
  * Schnittstelle des Memory Controllers
  * (siehe Datenblatt AT91RM9200 Kap. 16.)
  */
-struct mc { 
- 	unsigned int rcr; 
- 	unsigned int asr; 
- 	void *aasr; 
- 	unsigned int mpr;
+struct mc {
+  unsigned int rcr;
+  unsigned int asr;
+  void *aasr;
+  unsigned int mpr;
 };
- 
+
 #define RCB (1 << 0)
- 
-volatile struct mc * const mc = (struct mc *)MC_BASE; 
- 
+
+volatile struct mc * const mc = (struct mc *)MC_BASE;
+
 /*
  * mc_remap() - Memory-Remap durchführen
  *
@@ -27,9 +27,9 @@ volatile struct mc * const mc = (struct mc *)MC_BASE;
  */
 void mc_remap(void)
 {
- 	mc->rcr = RCB; 
+  mc->rcr = RCB;
 }
- 
+
 /*
  * mc_get_abort_address() - letzte Abort-Adresse ermitteln
  *
@@ -39,5 +39,5 @@ void mc_remap(void)
  */
 void *mc_get_abort_address(void)
 {
- 	return mc->aasr; 
+  return mc->aasr;
 }
