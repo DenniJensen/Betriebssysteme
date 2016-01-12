@@ -9,7 +9,17 @@ void *memcpy(void *dest, const void *src, size_t n);
 
 /* lib/print.c */
 __attribute__ ((format(printf,1,2)))
-  void printf(char *format, ...);
+void printf(char *format, ...);
+
+// Sys calls, to put and get chars
+void put_char(char *c);
+// void get_char(char *c);
+
+// list of action for the SWI
+enum INTERRUPT_ACTIONS {
+  GET_CHAR,
+  PUT_CHAR
+};
 
 
 

@@ -22,6 +22,7 @@ OBJ += system/exceptions.o system/exceptions_asm.o
 OBJ += system/cpu.o system/cpu_asm.o
 OBJ += system/info.o
 OBJ += system/scheduler.o
+OBJ += lib/system_calls.o
 
 OBJ += driver/dbgu.o driver/mc.o driver/st.o driver/aic.o
 OBJ += lib/print.o lib/mem.o lib/list.o
@@ -43,7 +44,7 @@ DEP = $(OBJ:.o=.d)
 #
 # Regeln
 #
-.PHONY: all 
+.PHONY: all
 all: kernel
 
 -include $(DEP)
@@ -66,6 +67,10 @@ kernel.img: kernel.bin
 .PHONY: install
 install: kernel.img
 	arm-install-image $<
+
+.PHONY: run
+run: clean kernel
+	qemu-bsprak -kernel kernel
 
 .PHONY: clean
 clean:

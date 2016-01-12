@@ -189,8 +189,10 @@ void _exception_swi(unsigned int regs[16])
 
   if(mode == PSR_USR) {
     /* SWI aus User-Modus aus ist gewollt: beende den Thread */
+    printf("\nSWI arrived\n");
     end_current_thread();
   } else {
+    printf("\nELSE PATH FORM SWI HANDLER\n");
     if (regs[11] == 0xde00)
       asm ("mov r11, #0; swi 0");
     /*

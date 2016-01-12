@@ -21,5 +21,9 @@ void start_kernel(void)
   st_init();
   st_set_interval(500);
 
+
+  char c = 't';
+  put_char(&c);
+
   scheduler_init();
 }
