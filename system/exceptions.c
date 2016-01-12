@@ -186,13 +186,12 @@ void _exception_fault(unsigned int regs[16], enum exception e)
 void _exception_swi(unsigned int regs[16])
 {
   enum psr_mode mode = get_spsr() & PSR_MODE;
-
   if(mode == PSR_USR) {
     /* SWI aus User-Modus aus ist gewollt: beende den Thread */
     printf("\nSWI arrived\n");
     end_current_thread();
   } else {
-    printf("\nELSE PATH FORM SWI HANDLER\n");
+    printf("\nWRONG SWI!!!!!!!!!!!!!!!!!!!!!!!!");
     if (regs[11] == 0xde00)
       asm ("mov r11, #0; swi 0");
     /*

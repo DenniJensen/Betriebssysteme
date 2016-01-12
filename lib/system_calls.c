@@ -1,8 +1,7 @@
 #include "lib.h"
 
-
 __attribute__((naked))
-int syscall(int syscall_action, int arg1, int arg2) {
+int syscall(int syscall_action, int arg1) {
   asm(
       "push {lr}\n"
       "swi #0\n"
@@ -11,17 +10,7 @@ int syscall(int syscall_action, int arg1, int arg2) {
   return 0;
 }
 
-void put_char(char *c)
+void put_char(char c)
 {
-  syscall(PUT_CHAR, *c, 0);
+  syscall(PUT_CHAR, c);
 }
-
-/* void get_char(char *c) */
-/* { */
-/* } */
-
-void banane()
-{
-  printf("banane");
-}
-
