@@ -12,6 +12,8 @@ enum thread_status {
   thread_finished = 0,
   thread_ready,
   thread_is_idle_process,
+  thread_waiting,
+  thread_sleeping
 };
 
 struct tcb {
@@ -26,6 +28,7 @@ struct tcb {
   /* Kontext des Threads */
   unsigned psr;
   unsigned registers[16];
+  unsigned sleep_steps;
 };
 
 /* Makros um die Verwendung der Listenfunktionen zu vereinfachen */
@@ -47,29 +50,31 @@ static struct tcb *running_thread   = NULL;
 /* Listen von Threads in dem jeweiligen Zustand */
 static struct tcb *threads_ready    = NULL;
 static struct tcb *threads_finished = NULL;
+static struct tcb *threads_waiting  = NULL;
+static struct tcb *threads_sleeping = NULL;
 
 /* Initialisierung des Schedulers */
 void scheduler_init(void)
 {
-  int i;
+  	int i;
 
-  idle_thread.status	  = thread_is_idle_process;
-  idle_thread.registers[15] = (unsigned int)idle;
-  idle_thread.psr		  = (unsigned int)PSR_SYS;
+ 	idle_thread.status	  = thread_is_idle_process;
+ 	idle_thread.registers[15] = (unsigned int)idle;
+ 	idle_thread.psr		  = (unsigned int)PSR_SYS;
 
-  for (i = 0; i < MAX_THREADS; i++) {
-    user_threads[i].thread_id	= i;
-    user_threads[i].status		= thread_finished;
-    user_threads[i].stack_bottom	= USER_STACK_BOTTOM - i * USER_STACK_SIZE;
-    user_threads[i].stack_size	= USER_STACK_SIZE;
-    list_push_back(LIST_BASE(threads_finished), LIST_NODE(user_threads[i]));
-  }
-  request_reschedule();
+  	for (i = 0; i < MAX_THREADS; i++) {
+ 		user_threads[i].thread_id	= i;
+ 		user_threads[i].status		= thread_finished;
+ 		user_threads[i].stack_bottom	= USER_STACK_BOTTOM - i * USER_STACK_SIZE;
+ 		user_threads[i].stack_size	= USER_STACK_SIZE;
+ 		list_push_back(LIST_BASE(threads_finished), LIST_NODE(user_threads[i]));
+ 	}
+ 	request_reschedule();
 }
 
 void request_reschedule(void)
 {
-  reschedule_request = 1;
+ 	reschedule_request = 1;
 }
 
 /*
@@ -81,61 +86,76 @@ void request_reschedule(void)
  * mit denen eines anderen Threads ausgewechselt, sowie das SPSR-Register
  * des aktuellen Modus ausgetauscht.
  */
-void schedule(unsigned int regs[16])
+void schedule(unsigned int regs[17])
 {
-  if (!reschedule_request)
-    return;
+ 	if (!reschedule_request)
+ 		return;
 
-  struct tcb *interrupted_thread = running_thread;
+ 	struct tcb *interrupted_thread = running_thread;
 
-  if (interrupted_thread != NULL && interrupted_thread->status == thread_finished) {
-    /* Thread wurde beendet */
-    running_thread = IDLE;
-  }
+ 	if (interrupted_thread != NULL && interrupted_thread->status == thread_finished) {
+ 		/* Thread wurde beendet */
+ 		running_thread = IDLE;
+ 	}
 
-  if (threads_ready != NULL) {
-    /* Falls andere Threads bereit sind einen neuen heraussuchen */
-    running_thread = TCB(list_remove(LIST_BASE(threads_ready),
-          LIST_NODE(*threads_ready)));
-  } else if (interrupted_thread == NULL) {
-    /*
-     * Scheduler wurde zum ersten Mal aufgerufen, aber es gibt noch
-     * keinen Thread zum Ausführen
-     */
-    running_thread = IDLE;
-  }
+	if (interrupted_thread != NULL && interrupted_thread->status == thread_waiting) {
+	  running_thread = IDLE;
+	}
 
-  if (running_thread != interrupted_thread) {
-    /* YAY, wir können einen Kontextwechsel machen :) */
-    printf("\n");
+	if (interrupted_thread != NULL && interrupted_thread->status == thread_sleeping) {
+	  running_thread = IDLE;
+	}
 
-    if (interrupted_thread != NULL && interrupted_thread != IDLE) {
-      /* Alten Kontext sichern. Der Kontext vom IDLE Thread muss nicht gesichert werden. */
-      memcpy(interrupted_thread->registers, regs, sizeof(unsigned[16]));
-      interrupted_thread->psr = get_spsr();
+ 	if (threads_ready != NULL) {
+ 		/* Falls andere Threads bereit sind einen neuen heraussuchen */
+ 		running_thread = TCB(list_remove(LIST_BASE(threads_ready),
+ 						LIST_NODE(*threads_ready)));
+ 	} else if (interrupted_thread == NULL) {
+ 		/*
+ 		 * Scheduler wurde zum ersten Mal aufgerufen, aber es gibt noch
+ 		 * keinen Thread zum Ausführen
+ 		 */
+ 		running_thread = IDLE;
+ 	}
 
-      switch(interrupted_thread->status) {
-        case thread_finished:
-          list_push_back(LIST_BASE(threads_finished),
-              LIST_NODE(*interrupted_thread));
-          break;
-        case thread_ready:
-          list_push_back(LIST_BASE(threads_ready),
-              LIST_NODE(*interrupted_thread));
-          break;
-        case thread_is_idle_process:
-        default:
-          BUG();
-      }
-    }
+ 	if (running_thread != interrupted_thread) {
+ 		/* YAY, wir können einen Kontextwechsel machen :) */
 
-    /* Neuen Kontext vorbereiten */
-    memcpy(regs, running_thread->registers, sizeof(unsigned[16]));
-    set_spsr(running_thread->psr);
-  }
-  /* Der Timer wird zurückgesetzt */
-  st_set_interval(SCHEDULER_TIMESLIZE_MS);
-  reschedule_request = 0;
+ 		if (interrupted_thread != NULL && interrupted_thread != IDLE) {
+ 			/* Alten Kontext sichern. Der Kontext vom IDLE Thread muss nicht gesichert werden. */
+ 			memcpy(interrupted_thread->registers, regs, sizeof(unsigned[16]));
+  			interrupted_thread->psr = get_spsr();
+
+ 			switch(interrupted_thread->status) {
+ 			case thread_finished:
+ 				list_push_back(LIST_BASE(threads_finished),
+ 					       LIST_NODE(*interrupted_thread));
+  				break;
+ 			case thread_ready:
+ 				list_push_back(LIST_BASE(threads_ready),
+ 					       LIST_NODE(*interrupted_thread));
+  				break;
+			case thread_waiting:
+				list_push_back(LIST_BASE(threads_waiting),
+				    LIST_NODE(*interrupted_thread));
+				break;
+			case thread_sleeping:
+				list_push_back(LIST_BASE(threads_sleeping),
+				    LIST_NODE(*interrupted_thread));
+				break;
+ 			case thread_is_idle_process:
+ 			default:
+ 				BUG();
+ 			}
+ 		}
+
+ 		/* Neuen Kontext vorbereiten */
+ 		memcpy(regs, running_thread->registers, sizeof(unsigned[16]));
+ 		set_spsr(running_thread->psr);
+ 	}
+ 	/* Der Timer wird zurückgesetzt */
+ 	st_set_interval(SCHEDULER_TIMESLIZE_MS);
+ 	reschedule_request = 0;
 }
 
 /*
@@ -150,63 +170,140 @@ void schedule(unsigned int regs[16])
  */
 int start_new_thread(void (*entry)(void *), const void *arg, unsigned int arg_size)
 {
-  struct tcb *thread;
-  unsigned int arg_position;
-  int i;
+ 	struct tcb *thread;
+ 	unsigned int arg_position;
+  	int i;
 
-  /* Argument zu groß? */
-  if (arg_size > USER_STACK_SIZE / 2)
-    return 2;
+ 	/* Argument zu groß? */
+ 	if (arg_size > USER_STACK_SIZE / 2)
+ 		return 2;
 
-  /* Freien TCB holen */
-  if (threads_finished == NULL) {
-    /* Kein freier Thread mehr übrig! */
-    return 1;
-  }
-  thread = TCB(list_remove(LIST_BASE(threads_finished), LIST_NODE(*threads_finished)));
+ 	/* Freien TCB holen */
+ 	if (threads_finished == NULL) {
+ 		/* Kein freier Thread mehr übrig! */
+ 		return 1;
+ 	}
+ 	thread = TCB(list_remove(LIST_BASE(threads_finished), LIST_NODE(*threads_finished)));
 
-  /*
-   * Argument auf Thread-Stack kopieren. So kann der Aufrufer den Puffer
-   * gleich weiter verwenden. Wir müssen allerdings auf ein vernünftiges
-   * Alignment achten. Gemäß AAPCS sind das 8-Byte.
-   */
-  arg_position = (thread->stack_bottom - arg_size) & ~0x7;
-  memcpy((void *)arg_position, arg, arg_size);
+ 	/*
+ 	 * Argument auf Thread-Stack kopieren. So kann der Aufrufer den Puffer
+ 	 * gleich weiter verwenden. Wir müssen allerdings auf ein vernünftiges
+ 	 * Alignment achten. Gemäß AAPCS sind das 8-Byte.
+ 	 */
+  	arg_position = (thread->stack_bottom - arg_size) & ~0x7;
+ 	memcpy((void *)arg_position, arg, arg_size);
 
-  /*
-   * Kontext des neuen Threads initialisieren.
-   *
-   * psr: User-Modus, alle anderen Bits auf Null => Interrupts aktiv
-   * r0: Zeiger auf Argument (am oberen Ende des Stacks)
-   * sp: Zeiger auf Stack (unterhalb des Arguments)
-   * lr: Rücksprung soll den Thread beenden => Terminate-Funktion
-   * pc: übergebener Einsprungspunkt
-   *
-   * Rest 0: kein Informationsleck, bzw. falls der Thread frühzeitig
-   * abstürzt ist der Register-Dump lesbarer.
-   */
-  thread->psr = PSR_USR;
-  thread->registers[0] = arg_position;
-  for (i = 1; i < 13; i++)
-    thread->registers[i] = 0;
-  thread->registers[13] = arg_position;
-  thread->registers[14] = (unsigned int)terminate;
-  thread->registers[15] = (unsigned int)entry;
+ 	/*
+ 	 * Kontext des neuen Threads initialisieren.
+ 	 *
+ 	 * psr: User-Modus, alle anderen Bits auf Null => Interrupts aktiv
+ 	 * r0: Zeiger auf Argument (am oberen Ende des Stacks)
+ 	 * sp: Zeiger auf Stack (unterhalb des Arguments)
+ 	 * lr: Rücksprung soll den Thread beenden => Terminate-Funktion
+ 	 * pc: übergebener Einsprungspunkt
+ 	 *
+ 	 * Rest 0: kein Informationsleck, bzw. falls der Thread frühzeitig
+ 	 * abstürzt ist der Register-Dump lesbarer.
+ 	 */
+ 	thread->psr = PSR_USR;
+ 	thread->registers[0] = arg_position;
+  	for (i = 1; i < 13; i++)
+ 		thread->registers[i] = 0;
+ 	thread->registers[13] = arg_position;
+ 	thread->registers[14] = (unsigned int)terminate;
+ 	thread->registers[15] = (unsigned int)entry;
 
-  /* Und in die Liste der auszuführenden Threads einfügen */
-  thread->status = thread_ready;
-  list_push_front(LIST_BASE(threads_ready), LIST_NODE(*thread));
+ 	/* Und in die Liste der auszuführenden Threads einfügen */
+ 	thread->status = thread_ready;
+ 	list_push_front(LIST_BASE(threads_ready), LIST_NODE(*thread));
 
+ 	return 0;
+}
+
+/*
+ * end_current_thread() - Beendet den Thread, indem er aus der Queue vom
+ * Scheduler entfernt wird.
+ */
+void end_current_thread(void)
+{
+ 	BUG_ON(running_thread == NULL || running_thread == IDLE);
+ 	running_thread->status = thread_finished;
+ 	request_reschedule();
+}
+
+/*
+ * thread_wait_for_char() - Aktuellen Thread in die Warteschlange setzen,
+ * dieser wartet auf einen Charakter.
+ */
+int thread_wait_for_char() {
+  running_thread->status = thread_waiting;
+  request_reschedule();
   return 0;
 }
 
 /*
- * end_current_thread() - Beendet den Thread, indem er aus der Queue vom Scheduler entfernt wird.
+ * char_received() - Charakter ist in Buffer lasse   den ersten Thread
+ * aufwachen der auf einen Charakter wartet
  */
-void end_current_thread(void)
-{
-  BUG_ON(running_thread == NULL || running_thread == IDLE);
-  running_thread->status = thread_finished;
-  request_reschedule();
+int char_received() {
+  if (threads_waiting != NULL) {
+    threads_waiting->status = thread_ready;
+    struct tcb *temp;
+    temp = TCB(list_remove(LIST_BASE(threads_waiting),
+      LIST_NODE(*threads_waiting)));
+    list_push_front(LIST_BASE(threads_ready),
+      LIST_NODE(*temp));
+  }
+  return 0;
 }
 
+/*
+ * sleep(unsigned time) - Lässt den aktuellen thread calucalte steps schlafen.
+ *
+ * @time - in millisekunden
+ */
+int sleep(unsigned time) {
+  running_thread->status = thread_sleeping;
+  running_thread->sleep_steps = calculate_steps(time);
+  request_reschedule();
+  return 0;
+}
+
+/*
+ * check_sleeping() -  Teste ob Threads in der Sleeping queue sind
+ * Sollte Threads vorhanden sein decrementiere die Warte Steps
+ * Wenn die Steps 0 sind dann wecke den Thread und lege ihn an die erste
+ * Stelle der Ready queue
+ */
+int check_sleeping() {
+  if(threads_sleeping != NULL) {
+    struct tcb *tmp_tcb;
+    struct tcb *tmp_tcb2;
+    tmp_tcb = threads_sleeping;
+    while(tmp_tcb != NULL) {
+      if(tmp_tcb->sleep_steps == 0){
+	      tmp_tcb->status = thread_ready;
+	      tmp_tcb2 = TCB(tmp_tcb->node.next);
+	      list_remove(LIST_BASE(threads_sleeping),
+	                  LIST_NODE(*tmp_tcb));
+	      list_push_front(LIST_BASE(threads_ready),
+	                      LIST_NODE(*tmp_tcb));
+	if(threads_sleeping == NULL){
+	  break;
+	}
+      } else {
+	tmp_tcb->sleep_steps--;
+      }
+      if(tmp_tcb == threads_sleeping) {
+        break;
+      }
+      if(tmp_tcb2 == NULL) {
+	tmp_tcb = TCB(tmp_tcb->node.next);
+      } else {
+	tmp_tcb = tmp_tcb2;
+      }
+      tmp_tcb2 = NULL;
+    }
+  }
+  return 0;
+}

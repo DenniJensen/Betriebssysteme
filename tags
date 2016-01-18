@@ -1,0 +1,231 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+AIC_BASE	driver/aic.c	/^#define AIC_BASE /;"	d	file:
+BUG	include/lib.h	/^#define BUG(/;"	d
+BUG_ON	include/lib.h	/^#define BUG_ON(/;"	d
+CC	Makefile	/^CC = $(shell .\/path_resolve arm-none-eabi-gcc)$/;"	m
+CFLAGS	Makefile	/^CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2$/;"	m
+CPPFLAGS	Makefile	/^CPPFLAGS = -Iinclude$/;"	m
+DBGU_BASE	driver/dbgu.c	/^#define DBGU_BASE /;"	d	file:
+DEP	Makefile	/^DEP = $(OBJ:.o=.d)$/;"	m
+E_DATAABORT	system/exceptions.c	/^ 	E_DATAABORT,$/;"	e	enum:exception	file:
+E_FIQ	system/exceptions.c	/^ 	E_FIQ,$/;"	e	enum:exception	file:
+E_IRQ	system/exceptions.c	/^ 	E_IRQ,$/;"	e	enum:exception	file:
+E_MAX	system/exceptions.c	/^ 	E_MAX,$/;"	e	enum:exception	file:
+E_PREFABORT	system/exceptions.c	/^ 	E_PREFABORT,$/;"	e	enum:exception	file:
+E_RESERVED	system/exceptions.c	/^ 	E_RESERVED,$/;"	e	enum:exception	file:
+E_RESET	system/exceptions.c	/^ 	E_RESET = 0,$/;"	e	enum:exception	file:
+E_SWI	system/exceptions.c	/^ 	E_SWI,$/;"	e	enum:exception	file:
+E_UNDEF	system/exceptions.c	/^ 	E_UNDEF,$/;"	e	enum:exception	file:
+GETCHAR	include/syscall.h	/^  GETCHAR,$/;"	e	enum:syscalls
+IDLE	system/scheduler.c	/^#define IDLE	/;"	d	file:
+INTERNAL_RAM	system/exceptions.c	/^#define INTERNAL_RAM /;"	d	file:
+LD	Makefile	/^LD = $(shell .\/path_resolve arm-none-eabi-ld)$/;"	m
+LIST_BASE	system/scheduler.c	/^#define LIST_BASE(/;"	d	file:
+LIST_NODE	system/scheduler.c	/^#define LIST_NODE(/;"	d	file:
+LSCRIPT	Makefile	/^LSCRIPT = kernel.lds$/;"	m
+MAX_THREADS	system/scheduler.c	/^#define MAX_THREADS /;"	d	file:
+MC_BASE	driver/mc.c	/^#define MC_BASE /;"	d	file:
+OBJ	Makefile	/^OBJ =  system\/entry.o system\/start.o$/;"	m
+OBJCOPY	Makefile	/^OBJCOPY = $(shell .\/path_resolve arm-none-eabi-objcopy)$/;"	m
+PITS	driver/st.c	/^#define PITS /;"	d	file:
+PSR_ABT	include/system.h	/^ 	PSR_ABT = 0x17,$/;"	e	enum:psr_mode
+PSR_C	include/system.h	/^ 	PSR_C = 1 << 29,$/;"	e	enum:psr
+PSR_F	include/system.h	/^ 	PSR_F = 1 << 6,$/;"	e	enum:psr
+PSR_FIQ	include/system.h	/^ 	PSR_FIQ = 0x11,$/;"	e	enum:psr_mode
+PSR_I	include/system.h	/^ 	PSR_I = 1 << 7,$/;"	e	enum:psr
+PSR_IRQ	include/system.h	/^ 	PSR_IRQ = 0x12,$/;"	e	enum:psr_mode
+PSR_MODE	include/system.h	/^ 	PSR_MODE = 0x1f,$/;"	e	enum:psr
+PSR_N	include/system.h	/^ 	PSR_N = 1 << 31,$/;"	e	enum:psr
+PSR_SVC	include/system.h	/^ 	PSR_SVC = 0x13,$/;"	e	enum:psr_mode
+PSR_SYS	include/system.h	/^ 	PSR_SYS = 0x1f,$/;"	e	enum:psr_mode
+PSR_T	include/system.h	/^ 	PSR_T = 1 << 5,$/;"	e	enum:psr
+PSR_UND	include/system.h	/^ 	PSR_UND = 0x1b,$/;"	e	enum:psr_mode
+PSR_USR	include/system.h	/^ 	PSR_USR = 0x10,$/;"	e	enum:psr_mode
+PSR_V	include/system.h	/^ 	PSR_V = 1 << 28,$/;"	e	enum:psr
+PSR_Z	include/system.h	/^ 	PSR_Z = 1 << 30,$/;"	e	enum:psr
+PUTCHAR	include/syscall.h	/^  PUTCHAR,$/;"	e	enum:syscalls
+QEMU_BSPRAK	Makefile	/^QEMU_BSPRAK = $(shell .\/path_resolve qemu-bsprak)$/;"	m
+RCB	driver/mc.c	/^#define RCB /;"	d	file:
+RXRDY	driver/dbgu.c	/^  RXRDY = 1 << 0,$/;"	e	enum:dbgu_status	file:
+RX_BUFFMASK	driver/dbgu.c	/^#define RX_BUFFMASK /;"	d	file:
+RX_BUFFSHIFT	driver/dbgu.c	/^#define RX_BUFFSHIFT /;"	d	file:
+RX_BUFFSIZE	driver/dbgu.c	/^#define RX_BUFFSIZE /;"	d	file:
+SCHEDULER_TIMESLIZE_MS	system/scheduler.c	/^#define SCHEDULER_TIMESLIZE_MS /;"	d	file:
+STACK_BOTTOM	system/memlayout.h	/^#define STACK_BOTTOM /;"	d
+STACK_SIZE	system/memlayout.h	/^#define STACK_SIZE /;"	d
+ST_BASE	driver/st.c	/^#define ST_BASE /;"	d	file:
+SYSCALL_H	include/syscall.h	/^#define SYSCALL_H$/;"	d
+SYSIRQ	include/aic.h	/^#define SYSIRQ /;"	d
+TCB	system/scheduler.c	/^#define TCB(/;"	d	file:
+THREAD_CLOSE	include/syscall.h	/^  THREAD_CLOSE,$/;"	e	enum:syscalls
+THREAD_CREATE	include/syscall.h	/^  THREAD_CREATE,$/;"	e	enum:syscalls
+THREAD_SLEEP	include/syscall.h	/^  THREAD_SLEEP$/;"	e	enum:syscalls
+TRAMPOLINE	system/exceptions_asm.S	/^TRAMPOLINE dataabort_trampoline	8 4 _exception_fault	 1 1$/;"	l
+TRAMPOLINE	system/exceptions_asm.S	/^TRAMPOLINE interrupt_trampoline	4 6 _exception_interrupt 0 0$/;"	l
+TRAMPOLINE	system/exceptions_asm.S	/^TRAMPOLINE prefabort_trampoline	4 3 _exception_fault	 1 1$/;"	l
+TRAMPOLINE	system/exceptions_asm.S	/^TRAMPOLINE swi_trampoline	0 2 _exception_swi	 1 0$/;"	l
+TRAMPOLINE	system/exceptions_asm.S	/^TRAMPOLINE undef_trampoline	4 1 _exception_fault	 1 1$/;"	l
+TXRDY	driver/dbgu.c	/^  TXRDY = 1 << 1,$/;"	e	enum:dbgu_status	file:
+USERLIB_H	user/user_lib.h	/^#define USERLIB_H$/;"	d
+USER_STACK_BOTTOM	system/memlayout.h	/^#define USER_STACK_BOTTOM /;"	d
+USER_STACK_SIZE	system/memlayout.h	/^#define USER_STACK_SIZE /;"	d
+_AIC_H_	include/aic.h	/^#define _AIC_H_$/;"	d
+_DBGU_H_	include/dbgu.h	/^#define _DBGU_H_$/;"	d
+_LIB_H_	include/lib.h	/^#define _LIB_H_$/;"	d
+_LIST_H_	include/list.h	/^#define _LIST_H_$/;"	d
+_MC_H_	include/mc.h	/^#define _MC_H_$/;"	d
+_MEMLAYOUT_H_	system/memlayout.h	/^#define _MEMLAYOUT_H_$/;"	d
+_ST_H_	include/st.h	/^#define _ST_H_$/;"	d
+_SYSTEM_H_	include/system.h	/^#define _SYSTEM_H_$/;"	d
+_exception_fault	system/exceptions.c	/^void _exception_fault(unsigned int regs[16], enum exception e)$/;"	f
+_exception_interrupt	system/exceptions.c	/^void _exception_interrupt(void)$/;"	f
+_exception_swi	system/exceptions.c	/^void _exception_swi(unsigned int regs[16])$/;"	f
+_exception_vectors_begin	system/exceptions_asm.S	/^_exception_vectors_begin:$/;"	l
+_exception_vectors_end	system/exceptions_asm.S	/^_exception_vectors_end:$/;"	l
+_get_banked_sp_lr	system/cpu_asm.S	/^_get_banked_sp_lr:$/;"	l
+_set_stack	system/cpu_asm.S	/^_set_stack:$/;"	l
+_start	system/entry.S	/^_start:$/;"	l
+_validate_exception	system/exceptions.c	/^void _validate_exception(enum exception e)$/;"	f
+aasr	driver/mc.c	/^  void *aasr;$/;"	m	struct:mc	file:
+aic	driver/aic.c	/^static volatile struct aic * const aic = (struct aic *)AIC_BASE;$/;"	v	file:
+aic	driver/aic.c	/^struct aic {$/;"	s	file:
+aic_enable_irq	driver/aic.c	/^void aic_enable_irq(int irq)$/;"	f
+asr	driver/mc.c	/^  unsigned int asr;$/;"	m	struct:mc	file:
+barrier	include/lib.h	/^static inline void barrier(void)$/;"	f
+busy_wait	include/lib.h	/^static inline void busy_wait(unsigned int usec)$/;"	f
+calc_store_pc_offset	system/cpu_asm.S	/^calc_store_pc_offset:$/;"	l
+calculate_steps	driver/st.c	/^unsigned int calculate_steps(unsigned int msec){$/;"	f
+char_received	system/scheduler.c	/^int char_received() {$/;"	f
+check_sleeping	system/scheduler.c	/^int check_sleeping() {$/;"	f
+dbgu	driver/dbgu.c	/^static volatile struct dbgu * const dbgu = (struct dbgu *)DBGU_BASE;$/;"	v	file:
+dbgu	driver/dbgu.c	/^struct dbgu {$/;"	s	file:
+dbgu_getc	driver/dbgu.c	/^char dbgu_getc(void)$/;"	f
+dbgu_handle_irq	driver/dbgu.c	/^void dbgu_handle_irq(void)$/;"	f
+dbgu_init	driver/dbgu.c	/^void dbgu_init(void)$/;"	f
+dbgu_putc	driver/dbgu.c	/^void dbgu_putc(char c)$/;"	f
+dbgu_status	driver/dbgu.c	/^enum dbgu_status {$/;"	g	file:
+disable_irq	system/cpu_asm.S	/^disable_irq:$/;"	l
+enable_irq	system/cpu_asm.S	/^enable_irq:$/;"	l
+end_current_thread	system/scheduler.c	/^void end_current_thread(void)$/;"	f
+exception	system/exceptions.c	/^enum exception {$/;"	g	file:
+exception_names	system/exceptions.c	/^static const char *exception_names[] = {$/;"	v	file:
+expected_mode	system/exceptions.c	/^static const enum psr_mode expected_mode[] = {$/;"	v	typeref:enum:psr_mode	file:
+get_banked_sp_lr	system/cpu.c	/^void get_banked_sp_lr(enum psr_mode mode, unsigned int regs[2])$/;"	f
+get_banked_spsr	system/cpu_asm.S	/^get_banked_spsr:$/;"	l
+get_cpsr	system/cpu_asm.S	/^get_cpsr:$/;"	l
+get_psr_mode_name	system/info.c	/^static const char *get_psr_mode_name(enum psr_mode mode)$/;"	f	file:
+get_spsr	system/cpu_asm.S	/^get_spsr:$/;"	l
+getchar	lib/syscalls.c	/^int getchar() {$/;"	f
+global_char_buffer	lib/syscalls.c	/^char global_char_buffer; \/*Buffer for exchange char *\/$/;"	v
+idle	system/cpu_asm.S	/^idle:$/;"	l
+idle_thread	system/scheduler.c	/^static struct tcb idle_thread;$/;"	v	typeref:struct:tcb	file:
+iecr	driver/aic.c	/^  unsigned int iecr;$/;"	m	struct:aic	file:
+ier	driver/dbgu.c	/^  unsigned int ier;$/;"	m	struct:dbgu	file:
+ier	driver/st.c	/^  unsigned int ier;$/;"	m	struct:st	file:
+init_exceptions	system/exceptions.c	/^void init_exceptions(void)$/;"	f
+init_other_stacks	system/cpu.c	/^void init_other_stacks(void)$/;"	f
+init_print	system/start.c	/^void init_print() {$/;"	f
+irq_disabled	system/cpu_asm.S	/^irq_disabled:$/;"	l
+jt_dataabort	system/exceptions_asm.S	/^jt_dataabort:	.word dataabort_trampoline$/;"	l
+jt_interrupt	system/exceptions_asm.S	/^jt_interrupt:	.word interrupt_trampoline$/;"	l
+jt_prefabort	system/exceptions_asm.S	/^jt_prefabort:	.word prefabort_trampoline$/;"	l
+jt_swi	system/exceptions_asm.S	/^jt_swi:		.word swi_trampoline$/;"	l
+jt_undef	system/exceptions_asm.S	/^jt_undef:	.word undef_trampoline$/;"	l
+list_debug	lib/list.c	/^void list_debug(struct list_node **list_base)$/;"	f
+list_insert	lib/list.c	/^void list_insert(struct list_node **list_base, struct list_node *current, struct list_node *element)$/;"	f
+list_node	include/list.h	/^struct list_node { $/;"	s
+list_push_back	lib/list.c	/^void list_push_back(struct list_node **list_base, struct list_node *element)$/;"	f
+list_push_front	lib/list.c	/^void list_push_front(struct list_node **list_base, struct list_node *element)$/;"	f
+list_remove	lib/list.c	/^struct list_node *list_remove(struct list_node **list_base, struct list_node* element)$/;"	f
+mc	driver/mc.c	/^struct mc {$/;"	s	file:
+mc	driver/mc.c	/^volatile struct mc * const mc = (struct mc *)MC_BASE;$/;"	v
+mc_get_abort_address	driver/mc.c	/^void *mc_get_abort_address(void)$/;"	f
+mc_remap	driver/mc.c	/^void mc_remap(void)$/;"	f
+memcpy	lib/mem.c	/^void *memcpy(void *dest, const void *src, size_t n)$/;"	f
+milli_seconds	driver/st.c	/^static unsigned int milli_seconds = 1;$/;"	v	file:
+mpr	driver/mc.c	/^  unsigned int mpr;$/;"	m	struct:mc	file:
+next	include/list.h	/^ 	struct list_node *next; $/;"	m	struct:list_node	typeref:struct:list_node::list_node
+node	system/scheduler.c	/^  struct list_node node;$/;"	m	struct:tcb	typeref:struct:tcb::list_node	file:
+pimr	driver/st.c	/^  unsigned int pimr;$/;"	m	struct:st	file:
+prev	include/list.h	/^ 	struct list_node *prev; $/;"	m	struct:list_node	typeref:struct:list_node::list_node
+print_banked_registers	system/info.c	/^static void print_banked_registers(void)$/;"	f	file:
+print_bug_info	system/info.c	/^void print_bug_info(unsigned int regs[16], const char *func, const char *file, int line)$/;"	f
+print_context	system/info.c	/^static void print_context(unsigned int regs[16], enum psr cpsr, enum psr spsr)$/;"	f	file:
+print_exception_info	system/info.c	/^void print_exception_info(unsigned int regs[16])$/;"	f
+print_hex	lib/print.c	/^static void print_hex(unsigned int val, int do_prefix, int width)$/;"	f	file:
+print_hex	user/lib.c	/^static void print_hex(unsigned int val, int do_prefix, int width)$/;"	f	file:
+print_psr	system/info.c	/^static void print_psr(enum psr psr)$/;"	f	file:
+print_registers	system/info.c	/^static void print_registers(unsigned int regs[16])$/;"	f	file:
+print_string	lib/print.c	/^static void print_string(char *s)$/;"	f	file:
+print_string	user/lib.c	/^static void print_string(char *s)$/;"	f	file:
+print_thread_info	system/info.c	/^void print_thread_info(unsigned int regs[16], enum psr cpsr)$/;"	f
+printf	lib/print.c	/^void printf(char *format, ...)$/;"	f
+psr	include/system.h	/^enum psr {$/;"	g
+psr	system/scheduler.c	/^  unsigned psr;$/;"	m	struct:tcb	file:
+psr_mode	include/system.h	/^enum psr_mode {$/;"	g
+putchar	lib/syscalls.c	/^int putchar(char c) {$/;"	f
+rcr	driver/mc.c	/^  unsigned int rcr;$/;"	m	struct:mc	file:
+registers	system/scheduler.c	/^  unsigned registers[16];$/;"	m	struct:tcb	file:
+request_reschedule	system/scheduler.c	/^void request_reschedule(void)$/;"	f
+reschedule_request	system/scheduler.c	/^static unsigned reschedule_request;$/;"	v	file:
+rhr	driver/dbgu.c	/^  unsigned int rhr;$/;"	m	struct:dbgu	file:
+running_thread	system/scheduler.c	/^static struct tcb *running_thread   = NULL;$/;"	v	typeref:struct:tcb	file:
+rx_buff	driver/dbgu.c	/^static char rx_buff[RX_BUFFSIZE];$/;"	v	file:
+rx_buff_getc	driver/dbgu.c	/^static char rx_buff_getc(void)$/;"	f	file:
+rx_buff_putc	driver/dbgu.c	/^static void rx_buff_putc(char c)$/;"	f	file:
+rx_head	driver/dbgu.c	/^static unsigned int rx_head = 0xfffffff8;$/;"	v	file:
+rx_tail	driver/dbgu.c	/^static unsigned int rx_tail = 0xfffffff8;$/;"	v	file:
+scanf	lib/scan.c	/^int scanf(char *c) {$/;"	f
+schedule	system/scheduler.c	/^void schedule(unsigned int regs[17])$/;"	f
+scheduler_init	system/scheduler.c	/^void scheduler_init(void)$/;"	f
+set_spsr	system/cpu_asm.S	/^set_spsr:$/;"	l
+sleep	system/scheduler.c	/^int sleep(unsigned time) {$/;"	f
+sleep_steps	system/scheduler.c	/^  unsigned sleep_steps;$/;"	m	struct:tcb	file:
+smr	driver/aic.c	/^  unsigned int smr[32];$/;"	m	struct:aic	file:
+sr	driver/dbgu.c	/^  unsigned int sr;$/;"	m	struct:dbgu	file:
+sr	driver/st.c	/^  unsigned int sr;$/;"	m	struct:st	file:
+st	driver/st.c	/^static volatile struct st * const st = (struct st *)ST_BASE;$/;"	v	file:
+st	driver/st.c	/^struct st {$/;"	s	file:
+st_handle_irq	driver/st.c	/^void st_handle_irq(void)$/;"	f
+st_init	driver/st.c	/^void st_init(void)$/;"	f
+st_set_interval	driver/st.c	/^void st_set_interval(unsigned int msec)$/;"	f
+stack_bottom	system/scheduler.c	/^  unsigned stack_bottom;$/;"	m	struct:tcb	file:
+stack_size	system/scheduler.c	/^  unsigned stack_size;$/;"	m	struct:tcb	file:
+start_kernel	system/start.c	/^void start_kernel(void)$/;"	f
+start_new_thread	system/scheduler.c	/^int start_new_thread(void (*entry)(void *), const void *arg, unsigned int arg_size)$/;"	f
+status	system/scheduler.c	/^  enum thread_status status;$/;"	m	struct:tcb	typeref:enum:tcb::thread_status	file:
+stop_execution	system/info.c	/^void stop_execution(void)$/;"	f
+syscall	lib/syscalls.c	/^int __attribute__((naked)) syscall(int r0, int r1) {$/;"	f
+syscalls	include/syscall.h	/^enum syscalls {$/;"	g
+tcb	system/scheduler.c	/^struct tcb {$/;"	s	file:
+terminate	user/userthread.c	/^void terminate(void)$/;"	f
+test_print_thread	user/userthread.c	/^void test_print_thread(void *x)$/;"	f
+test_scan_thread	user/userthread.c	/^void test_scan_thread() {$/;"	f
+thr	driver/dbgu.c	/^  unsigned int thr;$/;"	m	struct:dbgu	file:
+thread_close	lib/syscalls.c	/^int thread_close() {$/;"	f
+thread_create	lib/syscalls.c	/^int thread_create(char c) {$/;"	f
+thread_finished	system/scheduler.c	/^  thread_finished = 0,$/;"	e	enum:thread_status	file:
+thread_id	system/scheduler.c	/^  unsigned thread_id;$/;"	m	struct:tcb	file:
+thread_is_idle_process	system/scheduler.c	/^  thread_is_idle_process,$/;"	e	enum:thread_status	file:
+thread_ready	system/scheduler.c	/^  thread_ready,$/;"	e	enum:thread_status	file:
+thread_sleep	lib/syscalls.c	/^int thread_sleep(int time) {$/;"	f
+thread_sleeping	system/scheduler.c	/^  thread_sleeping$/;"	e	enum:thread_status	file:
+thread_status	system/scheduler.c	/^enum thread_status {$/;"	g	file:
+thread_wait_for_char	system/scheduler.c	/^int thread_wait_for_char() {$/;"	f
+thread_waiting	system/scheduler.c	/^  thread_waiting,$/;"	e	enum:thread_status	file:
+threads_finished	system/scheduler.c	/^static struct tcb *threads_finished = NULL;$/;"	v	typeref:struct:tcb	file:
+threads_ready	system/scheduler.c	/^static struct tcb *threads_ready    = NULL;$/;"	v	typeref:struct:tcb	file:
+threads_sleeping	system/scheduler.c	/^static struct tcb *threads_sleeping = NULL;$/;"	v	typeref:struct:tcb	file:
+threads_waiting	system/scheduler.c	/^static struct tcb *threads_waiting  = NULL;$/;"	v	typeref:struct:tcb	file:
+unused0	driver/aic.c	/^  unsigned int unused0[32 + 8];$/;"	m	struct:aic	file:
+unused0	driver/dbgu.c	/^  unsigned int unused0[2];$/;"	m	struct:dbgu	file:
+unused0	driver/st.c	/^  unsigned int unused0;$/;"	m	struct:st	file:
+unused1	driver/dbgu.c	/^  unsigned int unused1[2];$/;"	m	struct:dbgu	file:
+unused1	driver/st.c	/^  unsigned int unused1[2];$/;"	m	struct:st	file:
+user_printf	user/lib.c	/^void user_printf(char *format, ...)$/;"	f
+user_threads	system/scheduler.c	/^static struct tcb user_threads[MAX_THREADS];$/;"	v	typeref:struct:tcb	file:

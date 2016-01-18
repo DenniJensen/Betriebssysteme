@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <system.h>
+#include <syscall.h>
 
 /* lib/mem.c */
 void *memcpy(void *dest, const void *src, size_t n);
@@ -11,24 +12,12 @@ void *memcpy(void *dest, const void *src, size_t n);
 __attribute__ ((format(printf,1,2)))
 void printf(char *format, ...);
 
-// Sys calls, to put and get chars
-void put_char(char *c);
-// void get_char(char *c);
-
-// list of action for the SWI
-enum INTERRUPT_ACTIONS {
-  GET_CHAR,
-  PUT_CHAR
-};
-
-
-
-  /*
-   * barrier() - Compiler Optimization Barrier
-   *
-   * Verhindert ohne weiteren Overhead, dass GCC irgendwelche Speicherstellen
-   * über die Barriere hinweg in Registern zwischenspeichert.
-   */
+/*
+ * barrier() - Compiler Optimization Barrier
+ *
+ * Verhindert ohne weiteren Overhead, dass GCC irgendwelche Speicherstellen
+ * über die Barriere hinweg in Registern zwischenspeichert.
+ */
 static inline void barrier(void)
 {
   asm("" ::: "memory");
@@ -66,4 +55,3 @@ static inline void busy_wait(unsigned int usec)
 #define BUG_ON(cond) do { if (cond) BUG(); } while(0)
 
 #endif /* _LIB_H_ */
-

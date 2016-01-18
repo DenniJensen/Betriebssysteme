@@ -1,0 +1,13 @@
+#!/bin/bash
+
+LINNERT_HOME=/home/mi/linnert
+COMMAND=$1
+COMMAND_PATH="arm/bin"
+
+if [[ -e "$LINNERT_HOME/$COMMAND_PATH/$COMMAND" ]] ; then
+  echo "$LINNERT_HOME/$COMMAND_PATH/$COMMAND"
+elif [[ -e "$HOME/$COMMAND_PATH/$COMMAND" ]] ; then
+  echo "$HOME/$COMMAND_PATH/$COMMAND"
+else
+  echo "$COMMAND"
+fi

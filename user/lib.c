@@ -1,5 +1,7 @@
 #include <stdarg.h>
-#include <dbgu.h>
+#include <syscall.h>
+
+#include "user_lib.h"
 
 /*
  * val in hexadezimaler Darstellung ausgeben, auf Wunsch mit führendem
@@ -11,8 +13,8 @@ static void print_hex(unsigned int val, int do_prefix, int width)
   int i;
 
   if (do_prefix) {
-    dbgu_putc('0');
-    dbgu_putc('x');
+    putchar('0');
+    putchar('x');
   }
 
   /* Nibble von links nach rechts durchgehen: 0x76543210 */
@@ -23,7 +25,7 @@ static void print_hex(unsigned int val, int do_prefix, int width)
     if (!nibble && i >= width)
       continue;
 
-    dbgu_putc(hex_mask[nibble]);
+    putchar(hex_mask[nibble]);
 
     /* nach erster Ausgabe keine weiteren Nullen ignorieren */
     width = 8;
@@ -33,11 +35,11 @@ static void print_hex(unsigned int val, int do_prefix, int width)
 static void print_string(char *s)
 {
   while (*s)
-    dbgu_putc(*s++);
+    putchar(*s++);
 }
 
   __attribute__ ((format(printf,1,2)))
-void printf(char *format, ...)
+void user_printf(char *format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -45,7 +47,7 @@ void printf(char *format, ...)
   while (*format) {
     /* Normales Zeichen? */
     if (*format != '%') {
-      dbgu_putc(*format++);
+      putchar(*format++);
       continue;
     }
 
@@ -54,13 +56,13 @@ void printf(char *format, ...)
 
     /* Formatstring unerwartet zu Ende? */
     if (!*format) {
-      dbgu_putc('%');
+      putchar('%');
       break;
     }
 
     switch (*format) {
       case 'c':
-        dbgu_putc(va_arg(ap, unsigned int));
+        putchar(va_arg(ap, unsigned int));
         break;
       case 's':
         print_string(va_arg(ap, char*));
@@ -73,12 +75,12 @@ void printf(char *format, ...)
         print_hex(va_arg(ap, unsigned int), 1, 1);
         break;
       case '%':
-        dbgu_putc('%');
+        putchar('%');
         break;
       default:
         /* Unbekannte Formate einfach ausgeben */
-        dbgu_putc('%');
-        dbgu_putc(*format);
+        putchar('%');
+        putchar(*format);
     }
 
     format++;

@@ -3,43 +3,46 @@
 #include <mc.h>
 #include <dbgu.h>
 #include <st.h>
+#include <syscall.h>
+
+#include <dbgu.h>
 
 #define INTERNAL_RAM ((void *)0x00200000)
 
 enum exception {
-  E_RESET = 0,
-  E_UNDEF,
-  E_SWI,
-  E_PREFABORT,
-  E_DATAABORT,
-  E_RESERVED,
-  E_IRQ,
-  E_FIQ,
-  E_MAX,
+ 	E_RESET = 0,
+ 	E_UNDEF,
+ 	E_SWI,
+ 	E_PREFABORT,
+ 	E_DATAABORT,
+ 	E_RESERVED,
+ 	E_IRQ,
+ 	E_FIQ,
+ 	E_MAX,
 };
 
 /* Lookup-Table für Exception-Id => Name */
 static const char *exception_names[] = {
-  "Reset",
-  "Undefined Instruction",
-  "Software Interrupt",
-  "Prefetch Abort",
-  "Data Abort",
-  "Reserved",
-  "Interrupt",
-  "Fast Interrupt",
+ 	"Reset",
+ 	"Undefined Instruction",
+ 	"Software Interrupt",
+ 	"Prefetch Abort",
+ 	"Data Abort",
+ 	"Reserved",
+ 	"Interrupt",
+ 	"Fast Interrupt",
 };
 
 /* Lookup-Table für Exception-Id => resultierender Modus */
 static const enum psr_mode expected_mode[] = {
-  0,	 /* Reset */
-  PSR_UND, /* Undefined Instruction */
-  PSR_SVC, /* Software Interrupt */
-  PSR_ABT, /* Prefetch Abort */
-  PSR_ABT, /* Data Abort */
-  0,	 /* Reserved */
-  PSR_IRQ, /* Interrupt */
-  0,	 /* Fast Interrupt */
+ 	0,	 /* Reset */
+ 	PSR_UND, /* Undefined Instruction */
+ 	PSR_SVC, /* Software Interrupt */
+ 	PSR_ABT, /* Prefetch Abort */
+ 	PSR_ABT, /* Data Abort */
+ 	0,	 /* Reserved */
+ 	PSR_IRQ, /* Interrupt */
+ 	0,	 /* Fast Interrupt */
 };
 
 /* interne Funktionen/Daten aus system/exception_asm.S */
@@ -59,9 +62,9 @@ extern char _exception_vectors_end[];
  */
 void init_exceptions(void)
 {
-  memcpy(INTERNAL_RAM, _exception_vectors_begin,
-      _exception_vectors_end - _exception_vectors_begin);
-  mc_remap();
+ 	memcpy(INTERNAL_RAM, _exception_vectors_begin,
+ 	       _exception_vectors_end - _exception_vectors_begin);
+ 	mc_remap();
 }
 
 /*
@@ -74,20 +77,20 @@ void init_exceptions(void)
  */
 void _validate_exception(enum exception e)
 {
-  enum psr_mode mode = get_cpsr() & PSR_MODE;
+  	enum psr_mode mode = get_cpsr() & PSR_MODE;
 
-  if (mode == PSR_USR) {
-    /*
-     * Noch haben wir keinen Speicherschutz, womit ausgeschlossen
-     * wäre, dass ein User-Programm hier ankommt. Falls also doch
-     * ein User-Programm hier ankommt, ist es falsch und wir
-     * beenden es hart. (Anstatt das System anzuhalten.)
-     */
-    asm (".word 0xE7F000F0");
-  }
-  BUG_ON(e >= E_MAX);
-  BUG_ON(mode != expected_mode[e]);
-  BUG_ON(!irq_disabled());
+ 	if (mode == PSR_USR) {
+ 		/*
+ 		 * Noch haben wir keinen Speicherschutz, womit ausgeschlossen
+ 		 * wäre, dass ein User-Programm hier ankommt. Falls also doch
+ 		 * ein User-Programm hier ankommt, ist es falsch und wir
+ 		 * beenden es hart. (Anstatt das System anzuhalten.)
+ 		 */
+  		asm (".word 0xE7F000F0");
+ 	}
+ 	BUG_ON(e >= E_MAX);
+ 	BUG_ON(mode != expected_mode[e]);
+ 	BUG_ON(!irq_disabled());
 }
 
 /*
@@ -109,23 +112,23 @@ void _validate_exception(enum exception e)
  */
 void _exception_interrupt(void)
 {
-  enum psr_mode mode = get_spsr() & PSR_MODE;
+  	enum psr_mode mode = get_spsr() & PSR_MODE;
 
-  /*
-   * Interrupts dürfen bei uns nur in Nicht-Ausnahme-Modi generiert
-   * werden; der Kontextwechsel funktioniert sonst nicht verlässlich.
-   */
-  BUG_ON(mode != PSR_USR && mode != PSR_SYS);
+ 	/*
+ 	 * Interrupts dürfen bei uns nur in Nicht-Ausnahme-Modi generiert
+ 	 * werden; der Kontextwechsel funktioniert sonst nicht verlässlich.
+ 	 */
+ 	BUG_ON(mode != PSR_USR && mode != PSR_SYS);
 
-  /*
-   * Durchprobieren aller möglichen Quellen. Da Level-sensitiv, könnten
-   * wir genaugenommen nach dem ersten Handler, der tatsächlich eine
-   * Interrupt-Ursache beseitigt, zurückspringen. (Für Edge-triggered ist
-   * das einfache Durchgehen noch nicht genug. Da könnten wir immer noch
-   * etwas verpassen.)
-   */
-  st_handle_irq();
-  dbgu_handle_irq();
+ 	/*
+ 	 * Durchprobieren aller möglichen Quellen. Da Level-sensitiv, könnten
+ 	 * wir genaugenommen nach dem ersten Handler, der tatsächlich eine
+ 	 * Interrupt-Ursache beseitigt, zurückspringen. (Für Edge-triggered ist
+ 	 * das einfache Durchgehen noch nicht genug. Da könnten wir immer noch
+ 	 * etwas verpassen.)
+ 	 */
+ 	st_handle_irq();
+ 	dbgu_handle_irq();
 }
 
 /*
@@ -147,33 +150,33 @@ void _exception_interrupt(void)
  */
 void _exception_fault(unsigned int regs[16], enum exception e)
 {
-  enum psr spsr = get_spsr();
-  enum psr_mode mode = spsr & PSR_MODE;
-  const char *what;
+  	enum psr spsr = get_spsr();
+  	enum psr_mode mode = spsr & PSR_MODE;
+  	const char *what;
 
-  if (mode == PSR_USR) {
-    printf("\n===========================================================================\n\n");
-    what = "User-Thread";
-  } else {
-    printf("\n###########################################################################\n\n");
-    what = "Kernel";
-  }
-  printf("%s abgestuerzt!\n\n%s an Adresse %p!\n", what, exception_names[e], (void *)regs[15]);
+ 	if (mode == PSR_USR) {
+ 		printf("\n===========================================================================\n\n");
+ 		what = "User-Thread";
+ 	} else {
+ 		printf("\n###########################################################################\n\n");
+ 		what = "Kernel";
+ 	}
+ 	printf("%s abgestuerzt!\n\n%s an Adresse %p!\n", what, exception_names[e], (void *)regs[15]);
 
-  if (e == E_DATAABORT)
-    printf("Versuchter Zugriff auf Adresse %p.\n\n", mc_get_abort_address());
+ 	if (e == E_DATAABORT)
+ 		printf("Versuchter Zugriff auf Adresse %p.\n\n", mc_get_abort_address());
 
-  if (e == E_UNDEF || e == E_SWI)
-    printf("Datenwort an eben dieser Adresse: %p\n\n", (void *)*(unsigned int *)regs[15]);
+ 	if (e == E_UNDEF || e == E_SWI)
+ 		printf("Datenwort an eben dieser Adresse: %p\n\n", (void *)*(unsigned int *)regs[15]);
 
-  if (mode == PSR_USR) {
-    print_thread_info(regs, spsr);
-    printf("\n===========================================================================\n\n");
-    end_current_thread();
-  } else {
-    print_exception_info(regs);
-    stop_execution();
-  }
+ 	if (mode == PSR_USR) {
+ 		print_thread_info(regs, spsr);
+ 		printf("\n===========================================================================\n\n");
+  		end_current_thread();
+ 	} else {
+ 		print_exception_info(regs);
+ 		stop_execution();
+ 	}
 }
 
 /*
@@ -185,22 +188,48 @@ void _exception_fault(unsigned int regs[16], enum exception e)
  */
 void _exception_swi(unsigned int regs[16])
 {
-  enum psr_mode mode = get_spsr() & PSR_MODE;
+  	enum psr_mode mode = get_spsr() & PSR_MODE;
 
-  if(mode == PSR_USR) {
-    /* SWI aus User-Modus aus ist gewollt: beende den Thread */
-    printf("\nSWI arrived\n");
-    end_current_thread();
-  } else {
-    printf("\nELSE PATH FORM SWI HANDLER\n");
-    if (regs[11] == 0xde00)
-      asm ("mov r11, #0; swi 0");
-    /*
-     * SWI durch Betriebssystem-Code ist ungewollt. Der PC zeigt
-     * momentan auf die Instruktion nach dem SWI; für die Fehler-
-     * ausgabe ändern wir das.
-     */
-    regs[15] -= 4;
-    _exception_fault(regs, E_SWI);
-  }
+ 	if(mode == PSR_USR) {
+ 		/* SWI aus User-Modus aus ist gewollt: beende den Thread */
+
+	extern void test_print_thread(void* x);
+	char c;
+	switch (regs[0]) {
+	  case PUTCHAR : 
+	    dbgu_putc((char) regs[1]); 
+	      break;
+	  case GETCHAR : 
+	      thread_wait_for_char(); 
+	      break;
+	  case THREAD_CLOSE :
+	      end_current_thread();  
+	      break;
+	  case THREAD_CREATE : 
+                c = (char) regs[1];
+ 		if (start_new_thread(test_print_thread, &c, sizeof(c)))
+ 			printf("Limit reached - cannot start new thread\n");
+ 		else
+ 			request_reschedule();
+		break;
+	  case THREAD_SLEEP : 
+		sleep(regs[1]);
+		break;
+	  default: 
+		   printf("Unknown software interupt %x", regs[0]);
+
+	}
+	} else {
+
+	  if (regs[11] == 0xde00)
+	    asm ("mov r11, #0; swi 0");
+	  /*
+	   * SWI durch Betriebssystem-Code ist ungewollt. Der PC zeigt
+	   * momentan auf die Instruktion nach dem SWI; für die Fehler-
+	   * ausgabe ändern wir das.
+	   */
+	  regs[15] -= 4;
+	  _exception_fault(regs, E_SWI);
+
+	}
 }

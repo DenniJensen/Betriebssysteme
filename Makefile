@@ -22,24 +22,31 @@ OBJ += system/exceptions.o system/exceptions_asm.o
 OBJ += system/cpu.o system/cpu_asm.o
 OBJ += system/info.o
 OBJ += system/scheduler.o
-OBJ += lib/system_calls.o
 
 OBJ += driver/dbgu.o driver/mc.o driver/st.o driver/aic.o
-OBJ += lib/print.o lib/mem.o lib/list.o
-OBJ += user/userthread.o
+OBJ += lib/print.o lib/mem.o lib/list.o lib/syscalls.o
+OBJ += lib/scan.o
+OBJ += user/userthread.o user/lib.o
 
 #
 # Konfiguration
 #
-CC = arm-none-eabi-gcc
-LD = arm-none-eabi-ld
-OBJCOPY = arm-none-eabi-objcopy
+CC = $(shell ./path_resolve arm-none-eabi-gcc)
+LD = $(shell ./path_resolve arm-none-eabi-ld)
+OBJCOPY = $(shell ./path_resolve arm-none-eabi-objcopy)
+
+QEMU_BSPRAK = $(shell ./path_resolve qemu-bsprak)
 
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2
 CPPFLAGS = -Iinclude
 #LIBGCC := $(shell $(CC) -print-libgcc-file-name)
 
 DEP = $(OBJ:.o=.d)
+
+export CC
+export LD
+export OBJCOPY
+export CFLAGS
 
 #
 # Regeln
@@ -68,12 +75,16 @@ kernel.img: kernel.bin
 install: kernel.img
 	arm-install-image $<
 
-.PHONY: run
-run: clean kernel
-	qemu-bsprak -kernel kernel
-
 .PHONY: clean
 clean:
 	rm -f kernel kernel.bin kernel.img
 	rm -f $(OBJ)
 	rm -f $(DEP)
+	rm -f $(shell find -name '*.gch')
+
+.PHONY: run
+run: clean kernel
+	$(QEMU_BSPRAK) -kernel kernel
+
+.PHONY: debug
+debug: clean kernel

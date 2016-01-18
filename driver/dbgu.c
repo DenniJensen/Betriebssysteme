@@ -1,6 +1,6 @@
 #include <lib.h>
 #include <aic.h>
-
+#include <system.h>
 /*
  * Hardware-Interface zur Debug-Unit
  *
@@ -191,7 +191,8 @@ void dbgu_handle_irq(void)
    */
   if (sr & RXRDY) {
     char c = dbgu->rhr;
-
+    char_received(c);
+    global_char_buffer = c;
     /*
      * Um den Compiler glücklich zu machen und den Sonderfall-Code
      * für diese Aufgabe nicht überall zu haben: CTRL+C puffern
@@ -213,11 +214,6 @@ void dbgu_handle_irq(void)
       asm ("mov r11, #0xde00; swi 0");
 #endif
 
-    extern void test_print_thread(void* x);
-    if (start_new_thread(test_print_thread, &c, sizeof(c)))
-      printf("Limit reached - cannot start new thread\n");
-    else
-      request_reschedule();
   }
 #endif
 }
