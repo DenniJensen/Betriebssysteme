@@ -7,9 +7,7 @@ void init_print() {
   printf("----------------------------------------------------------------\n");
   printf("\nKernel initialisiert\n");
   printf("\nStarte erste Anwendung...");
-  printf("\nAnwendung ließt ein Zeichen und startet einen neuen Thread.");
-  printf("\nSollte ein groß Buchstaben gelesen, worden sein, \n");
-  printf("dann benutzt der Thread aktives Warten, ansonsten passives!");
+  printf("\nBitte ein Zeichen eingeben.");
   printf("\n---------------------------------------------------------------\n\n");
 }
 
